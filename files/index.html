@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1차시 · 건설기술 진단 | WithTech</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy: #0d2b45;
+    --navy-deep: #081d30;
+    --line: #3f6f95;
+    --line-soft: rgba(95,168,211,0.25);
+    --paper: #eef3f6;
+    --paper-warm: #f7fafb;
+    --ink: #12202b;
+    --ink-soft: #4c6274;
+    --safety: #f2a71b;
+    --safety-deep: #c9860a;
+    --ok: #3fa876;
+    --bad: #d1495b;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Noto Sans KR', sans-serif;
+    background:
+      linear-gradient(var(--navy), var(--navy)),
+      repeating-linear-gradient(0deg, var(--line-soft) 0px, var(--line-soft) 1px, transparent 1px, transparent 40px),
+      repeating-linear-gradient(90deg, var(--line-soft) 0px, var(--line-soft) 1px, transparent 1px, transparent 40px);
+    background-blend-mode: normal;
+    color: var(--paper);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding: 24px 16px 60px;
+  }
+  .mono{ font-family:'Space Mono', monospace; }
+
+  /* ---- top scale / progress ---- */
+  .scalebar{
+    width:100%;
+    max-width:720px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:28px;
+  }
+  .scalebar .tick{
+    flex:1;
+    height:6px;
+    background: rgba(255,255,255,0.12);
+    position:relative;
+    border-radius:2px;
+    overflow:hidden;
+  }
+  .scalebar .tick.done{ background: var(--safety); }
+  .scalebar .tick.current{ background: rgba(242,167,27,0.4); }
+  .scalebar .label{
+    font-size:0.72em;
+    letter-spacing:0.05em;
+    opacity:0.7;
+    white-space:nowrap;
+  }
+
+  .stage{
+    width:100%;
+    max-width:720px;
+  }
+
+  /* ---- header block ---- */
+  .kicker{
+    font-size:0.75em;
+    letter-spacing:0.18em;
+    color: var(--safety);
+    margin-bottom:6px;
+  }
+  h1{
+    font-size:1.7em;
+    margin:0 0 6px;
+    line-height:1.3;
+  }
+  .desc{
+    color: rgba(238,243,246,0.7);
+    margin-bottom:26px;
+    font-size:0.95em;
+    line-height:1.6;
+  }
+
+  /* ---- paper panel ---- */
+  .panel{
+    background: var(--paper-warm);
+    color: var(--ink);
+    border-radius: 4px;
+    padding: 28px;
+    position:relative;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+    margin-bottom: 24px;
+  }
+  .panel::before, .panel::after,
+  .corner-tl, .corner-tr, .corner-bl, .corner-br{ content:''; }
+  .corner{
+    position:absolute;
+    width:16px; height:16px;
+    border: 2px solid var(--navy);
+    opacity:0.35;
+  }
+  .corner.tl{ top:8px; left:8px; border-right:none; border-bottom:none; }
+  .corner.tr{ top:8px; right:8px; border-left:none; border-bottom:none; }
+  .corner.bl{ bottom:8px; left:8px; border-right:none; border-top:none; }
+  .corner.br{ bottom:8px; right:8px; border-left:none; border-top:none; }
+
+  /* ---- title block (signature element) ---- */
+  .titleblock{
+    max-width:720px;
+    width:100%;
+    display:flex;
+    border:1px solid var(--line);
+    border-radius:4px;
+    overflow:hidden;
+    font-family:'Space Mono', monospace;
+    font-size:0.72em;
+    color: rgba(238,243,246,0.75);
+    margin-top: 8px;
+  }
+  .titleblock div{
+    padding:8px 12px;
+    border-right:1px solid var(--line);
+  }
+  .titleblock div:last-child{ border-right:none; }
+  .titleblock .tb-label{
+    display:block;
+    opacity:0.55;
+    font-size:0.85em;
+    margin-bottom:2px;
+  }
+
+  /* ---- buttons ---- */
+  .btn{
+    appearance:none;
+    border:none;
+    cursor:pointer;
+    font-family:'Noto Sans KR', sans-serif;
+    font-weight:700;
+    font-size:0.95em;
+    padding:13px 26px;
+    border-radius:3px;
+    background: var(--safety);
+    color: var(--navy-deep);
+    transition: transform 0.12s ease, background 0.12s ease;
+  }
+  .btn:hover{ background: var(--safety-deep); transform: translateY(-2px); }
+  .btn:active{ transform: translateY(0); }
+  .btn.ghost{
+    background: transparent;
+    border: 1.5px solid var(--line);
+    color: var(--paper);
+  }
+  .btn.ghost:hover{ background: rgba(255,255,255,0.08); }
+  .btn:disabled{ opacity:0.4; cursor:not-allowed; transform:none; }
+  .btn-row{ display:flex; gap:12px; flex-wrap:wrap; }
+
+  /* ---- classify quiz ---- */
+  .item-card{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    background:#fff;
+    border:1px solid #d8e1e7;
+    border-radius:4px;
+    padding:16px 18px;
+    margin-bottom:14px;
+  }
+  .item-emoji{ font-size:1.8em; }
+  .item-name{ font-weight:700; font-size:1.05em; }
+  .item-sub{ font-size:0.8em; color:var(--ink-soft); }
+  .choice-row{
+    display:flex; gap:10px; margin-top:16px;
+  }
+  .choice-btn{
+    flex:1;
+    padding:14px 10px;
+    border-radius:4px;
+    border:2px solid var(--navy);
+    background: transparent;
+    color: var(--navy);
+    font-weight:700;
+    cursor:pointer;
+    font-size:0.95em;
+  }
+  .choice-btn:hover{ background: rgba(13,43,69,0.06); }
+  .choice-btn.correct{ background: var(--ok); border-color: var(--ok); color:#fff; }
+  .choice-btn.wrong{ background: var(--bad); border-color: var(--bad); color:#fff; }
+  .choice-btn:disabled{ cursor:default; }
+  .feedback{
+    margin-top:14px;
+    padding:12px 14px;
+    border-radius:4px;
+    font-size:0.88em;
+    line-height:1.55;
+    display:none;
+  }
+  .feedback.show{ display:block; }
+  .feedback.ok{ background: rgba(63,168,118,0.12); border-left:3px solid var(--ok); }
+  .feedback.bad{ background: rgba(209,73,91,0.12); border-left:3px solid var(--bad); }
+
+  .qcount{
+    font-family:'Space Mono', monospace;
+    font-size:0.78em;
+    color: var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .qtext{ font-size:1.08em; font-weight:700; margin-bottom:16px; line-height:1.5; }
+
+  /* ---- research section ---- */
+  .form-grid{ display:flex; flex-direction:column; gap:12px; margin-bottom:18px; }
+  label.f-label{
+    font-size:0.8em; font-weight:700; color:var(--ink-soft);
+    display:block; margin-bottom:4px;
+  }
+  input[type=text], textarea{
+    width:100%;
+    font-family:'Noto Sans KR', sans-serif;
+    padding:11px 12px;
+    border:1.5px solid #cdd8e0;
+    border-radius:4px;
+    font-size:0.92em;
+    background:#fff;
+    color:var(--ink);
+  }
+  textarea{ resize:vertical; min-height:64px; }
+  input:focus, textarea:focus{ outline:2px solid var(--safety); border-color:var(--safety); }
+
+  .gallery{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px,1fr));
+    gap:14px;
+    margin-top:18px;
+  }
+  .gcard{
+    background:#fff;
+    border:1px solid #d8e1e7;
+    border-radius:4px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+  .gcard img{ width:100%; height:120px; object-fit:cover; display:block; background:#dde5ea; }
+  .gcard .gbody{ padding:10px 12px; }
+  .gcard .gera{ font-family:'Space Mono',monospace; font-size:0.7em; color:var(--safety-deep); font-weight:700; }
+  .gcard .gtext{ font-size:0.85em; margin-top:4px; line-height:1.4; }
+  .gcard .gdel{
+    font-size:0.72em; color:var(--bad); background:none; border:none; cursor:pointer;
+    padding:8px 12px; text-align:left;
+  }
+  .empty-note{
+    font-size:0.85em; color:var(--ink-soft); padding:14px; text-align:center;
+    border:1.5px dashed #cdd8e0; border-radius:4px;
+  }
+
+  /* ---- intro / finish screens ---- */
+  .hero-icon{ font-size:3em; margin-bottom:8px; }
+  .score-big{
+    font-family:'Space Mono', monospace;
+    font-size:2.6em;
+    font-weight:700;
+    color: var(--safety);
+    margin: 6px 0;
+  }
+  a.textlink{ color: var(--safety); }
+
+  .section{ display:none; }
+  .section.active{ display:block; }
+
+  @media (max-width:480px){
+    h1{ font-size:1.4em; }
+    .panel{ padding:20px; }
+    .choice-row{ flex-direction:column; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="scalebar" id="scalebar"></div>
+
+  <div class="stage">
+
+    <!-- 0: INTRO -->
+    <section class="section active" id="sec-intro">
+      <div class="panel">
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+        <div class="hero-icon">🏗️</div>
+        <div class="kicker">건설기술 · 1차시</div>
+        <h1>건축기술과 토목기술, 그리고 주거공간의 변화</h1>
+        <p style="color:var(--ink-soft); line-height:1.6; font-size:0.95em;">
+          오늘 배운 내용을 세 단계로 정리합니다.<br>
+          ① 건축기술 vs 토목기술 구분하기 → ② 시대별 주거공간 변화 퀴즈 → ③ 직접 조사해서 기록하기
+        </p>
+        <div class="btn-row" style="margin-top:20px;">
+          <button class="btn" onclick="goTo(1)">시작하기</button>
+        </div>
+      </div>
+      <div class="titleblock">
+        <div><span class="tb-label">SUBJECT</span>기술</div>
+        <div><span class="tb-label">UNIT</span>건설기술</div>
+        <div><span class="tb-label">LESSON</span>1차시</div>
+      </div>
+    </section>
+
+    <!-- 1: CLASSIFY QUIZ -->
+    <section class="section" id="sec-classify">
+      <div class="kicker">STEP 1</div>
+      <h1>건축기술 일까요, 토목기술 일까요?</h1>
+      <p class="desc">아래 구조물이 사람이 살고 활동하는 <b>건축기술</b>의 결과물인지, 도로·다리처럼 기반시설을 만드는 <b>토목기술</b>의 결과물인지 골라보세요.</p>
+
+      <div class="panel">
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+        <div class="qcount mono" id="cl-count"></div>
+        <div class="item-card">
+          <div class="item-emoji" id="cl-emoji"></div>
+          <div>
+            <div class="item-name" id="cl-name"></div>
+            <div class="item-sub" id="cl-sub"></div>
+          </div>
+        </div>
+        <div class="choice-row">
+          <button class="choice-btn" id="cl-btn-arch" onclick="answerClassify('건축기술')">🏠 건축기술</button>
+          <button class="choice-btn" id="cl-btn-civil" onclick="answerClassify('토목기술')">🌉 토목기술</button>
+        </div>
+        <div class="feedback" id="cl-feedback"></div>
+        <div class="btn-row" style="margin-top:18px;">
+          <button class="btn" id="cl-next" onclick="nextClassify()" disabled>다음 문항</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2: ERA QUIZ -->
+    <section class="section" id="sec-era">
+      <div class="kicker">STEP 2</div>
+      <h1>시대별 주거공간, 어떻게 변해왔을까?</h1>
+      <p class="desc">시대에 따라 주거 형태와 기술은 계속 달라져 왔습니다. 설명을 읽고 알맞은 답을 골라보세요.</p>
+
+      <div class="panel">
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+        <div class="qcount mono" id="era-count"></div>
+        <div class="qtext" id="era-q"></div>
+        <div id="era-choices" style="display:flex; flex-direction:column; gap:10px;"></div>
+        <div class="feedback" id="era-feedback"></div>
+        <div class="btn-row" style="margin-top:18px;">
+          <button class="btn" id="era-next" onclick="nextEra()" disabled>다음 문항</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3: RESEARCH -->
+    <section class="section" id="sec-research">
+      <div class="kicker">STEP 3</div>
+      <h1>직접 조사해서 기록해보기</h1>
+      <p class="desc">웹 검색으로 시대별 주거공간(움집, 한옥, 아파트 등) 사진을 찾아 이미지 주소(URL)와 설명을 입력해보세요. 이미지에서 <b>마우스 오른쪽 클릭 → "이미지 주소 복사"</b>로 URL을 가져올 수 있어요.</p>
+
+      <div class="panel">
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+        <div class="form-grid">
+          <div>
+            <label class="f-label">시대 / 유형 (예: 신석기, 조선시대, 2020년대)</label>
+            <input type="text" id="r-era" placeholder="예: 신석기 시대">
+          </div>
+          <div>
+            <label class="f-label">이미지 주소 (URL)</label>
+            <input type="text" id="r-img" placeholder="https://...">
+          </div>
+          <div>
+            <label class="f-label">조사한 내용 (특징, 재료, 구조 등)</label>
+            <textarea id="r-text" placeholder="예: 땅을 파고 기둥을 세운 뒤 풀과 짚으로 지붕을 덮은 움집. 추위와 짐승을 막기 위한 초기 주거 형태."></textarea>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="addResearch()">기록 추가하기</button>
+        </div>
+
+        <div class="gallery" id="r-gallery"></div>
+        <div class="empty-note" id="r-empty">아직 기록한 조사 내용이 없어요. 위에서 첫 번째 자료를 추가해보세요.</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" onclick="goTo(4)">활동 마무리하기</button>
+      </div>
+    </section>
+
+    <!-- 4: FINISH -->
+    <section class="section" id="sec-finish">
+      <div class="panel" style="text-align:center;">
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+        <div class="hero-icon">✅</div>
+        <div class="kicker">정리 완료</div>
+        <h1>수고했어요!</h1>
+        <div class="score-big" id="final-score">0 / 0</div>
+        <p style="color:var(--ink-soft); font-size:0.9em;">건축·토목 구분 + 시대별 주거공간 퀴즈 총점입니다</p>
+        <p style="color:var(--ink-soft); font-size:0.9em;" id="final-research"></p>
+        <div class="btn-row" style="justify-content:center; margin-top:18px;">
+          <button class="btn ghost" onclick="restart()">처음부터 다시 하기</button>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:10px;">
+        <a class="textlink mono" href="../index.html" style="font-size:0.8em;">← 기술 차시 목록으로</a>
+      </div>
+    </section>
+
+  </div>
+
+<script>
+/* ---------------- progress ---------------- */
+const STAGES = ['도입','건축·토목','시대별 변화','조사활동','완료'];
+let currentStage = 0;
+
+function renderScalebar(){
+  const bar = document.getElementById('scalebar');
+  bar.innerHTML = '';
+  STAGES.forEach((label, i) => {
+    const t = document.createElement('div');
+    t.className = 'tick' + (i < currentStage ? ' done' : i === currentStage ? ' current' : '');
+    bar.appendChild(t);
+  });
+}
+
+function goTo(stageIndex){
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  const ids = ['sec-intro','sec-classify','sec-era','sec-research','sec-finish'];
+  document.getElementById(ids[stageIndex]).classList.add('active');
+  currentStage = stageIndex;
+  renderScalebar();
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(stageIndex === 1) renderClassify();
+  if(stageIndex === 2) renderEra();
+  if(stageIndex === 3) renderGallery();
+  if(stageIndex === 4) renderFinish();
+}
+renderScalebar();
+
+/* ---------------- classify quiz ---------------- */
+const classifyItems = [
+  {name:'아파트', emoji:'🏢', sub:'사람이 거주하는 공동주택', answer:'건축기술'},
+  {name:'현수교(다리)', emoji:'🌉', sub:'강이나 계곡을 잇는 구조물', answer:'토목기술'},
+  {name:'학교 건물', emoji:'🏫', sub:'학생들이 생활하는 공간', answer:'건축기술'},
+  {name:'터널', emoji:'🚇', sub:'산이나 지하를 뚫어 만든 통로', answer:'토목기술'},
+  {name:'체육관', emoji:'🏟️', sub:'실내 스포츠 활동 공간', answer:'건축기술'},
+  {name:'댐', emoji:'🚧', sub:'물을 가두어 저장하는 구조물', answer:'토목기술'},
+];
+let clIndex = 0;
+let clCorrect = 0;
+let clAnswered = false;
+
+function renderClassify(){
+  clIndex = 0; clCorrect = 0;
+  showClassifyItem();
+}
+function showClassifyItem(){
+  clAnswered = false;
+  const item = classifyItems[clIndex];
+  document.getElementById('cl-count').textContent = (clIndex+1) + ' / ' + classifyItems.length;
+  document.getElementById('cl-emoji').textContent = item.emoji;
+  document.getElementById('cl-name').textContent = item.name;
+  document.getElementById('cl-sub').textContent = item.sub;
+  const fb = document.getElementById('cl-feedback');
+  fb.className = 'feedback'; fb.textContent = '';
+  document.getElementById('cl-btn-arch').className = 'choice-btn';
+  document.getElementById('cl-btn-civil').className = 'choice-btn';
+  document.getElementById('cl-btn-arch').disabled = false;
+  document.getElementById('cl-btn-civil').disabled = false;
+  document.getElementById('cl-next').disabled = true;
+}
+function answerClassify(choice){
+  if(clAnswered) return;
+  clAnswered = true;
+  const item = classifyItems[clIndex];
+  const correct = choice === item.answer;
+  if(correct) clCorrect++;
+  const archBtn = document.getElementById('cl-btn-arch');
+  const civilBtn = document.getElementById('cl-btn-civil');
+  archBtn.disabled = true; civilBtn.disabled = true;
+  const chosenBtn = choice === '건축기술' ? archBtn : civilBtn;
+  chosenBtn.classList.add(correct ? 'correct' : 'wrong');
+  if(!correct){
+    const rightBtn = item.answer === '건축기술' ? archBtn : civilBtn;
+    rightBtn.classList.add('correct');
+  }
+  const fb = document.getElementById('cl-feedback');
+  fb.classList.add('show', correct ? 'ok' : 'bad');
+  fb.textContent = correct
+    ? '정답이에요! ' + item.name + '는 ' + item.answer + '의 대표적인 예시입니다.'
+    : '아쉬워요. ' + item.name + '는 ' + item.answer + '에 해당해요. 사람이 사는 공간을 만들면 건축기술, 도로·다리처럼 생활 기반시설을 만들면 토목기술이에요.';
+  document.getElementById('cl-next').disabled = false;
+}
+function nextClassify(){
+  clIndex++;
+  if(clIndex >= classifyItems.length){
+    goTo(2);
+  } else {
+    showClassifyItem();
+  }
+}
+
+/* ---------------- era quiz ---------------- */
+const eraQuestions = [
+  {
+    q:'땅을 파서 바닥을 만들고 기둥과 짚으로 지붕을 덮은, 구석기~신석기 시대의 대표적인 주거 형태는?',
+    choices:['움집','한옥','아파트','초가집'],
+    answer:'움집',
+    explain:'움집은 땅을 파 내려가 지은 반지하 형태의 집으로, 추위와 짐승으로부터 몸을 보호하기 위한 초기 주거 형태예요.'
+  },
+  {
+    q:'조선시대에 많이 지어졌으며, 온돌과 마루를 함께 갖추고 나무·흙·기와 등 자연 재료를 사용한 전통 주거 형태는?',
+    choices:['움집','한옥','아파트','원두막'],
+    answer:'한옥',
+    explain:'한옥은 온돌(난방)과 마루(통풍)를 함께 갖춰 사계절에 대응한 우리나라 전통 건축기술의 결정체예요.'
+  },
+  {
+    q:'좁은 땅에 많은 사람이 살 수 있도록 여러 층으로 쌓아 올린, 현대 도시의 대표적인 공동주택 형태는?',
+    choices:['초가집','기와집','아파트','귀틀집'],
+    answer:'아파트',
+    explain:'인구가 도시로 집중되면서, 한정된 토지에 많은 사람이 거주할 수 있는 아파트 같은 고층 공동주택 기술이 발달했어요.'
+  },
+  {
+    q:'주거공간의 변화 순서를 시대 흐름에 맞게 볼 때, 다음 중 가장 오래된(먼 과거의) 주거 형태는?',
+    choices:['아파트','한옥','움집','고층 오피스텔'],
+    answer:'움집',
+    explain:'주거공간은 대체로 움집 → 초가집/한옥 → 근대 주택 → 아파트·오피스텔 순으로 발전해왔어요.'
+  },
+];
+let eraIndex = 0;
+let eraCorrect = 0;
+let eraAnswered = false;
+
+function renderEra(){
+  eraIndex = 0; eraCorrect = 0;
+  showEraQuestion();
+}
+function showEraQuestion(){
+  eraAnswered = false;
+  const item = eraQuestions[eraIndex];
+  document.getElementById('era-count').textContent = (eraIndex+1) + ' / ' + eraQuestions.length;
+  document.getElementById('era-q').textContent = item.q;
+  const box = document.getElementById('era-choices');
+  box.innerHTML = '';
+  item.choices.forEach(choice => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.style.textAlign = 'left';
+    btn.textContent = choice;
+    btn.onclick = () => answerEra(choice, btn);
+    box.appendChild(btn);
+  });
+  const fb = document.getElementById('era-feedback');
+  fb.className = 'feedback'; fb.textContent = '';
+  document.getElementById('era-next').disabled = true;
+}
+function answerEra(choice, btn){
+  if(eraAnswered) return;
+  eraAnswered = true;
+  const item = eraQuestions[eraIndex];
+  const correct = choice === item.answer;
+  if(correct) eraCorrect++;
+  document.querySelectorAll('#era-choices .choice-btn').forEach(b => {
+    b.disabled = true;
+    if(b.textContent === item.answer) b.classList.add('correct');
+    else if(b === btn) b.classList.add('wrong');
+  });
+  const fb = document.getElementById('era-feedback');
+  fb.classList.add('show', correct ? 'ok' : 'bad');
+  fb.textContent = (correct ? '정답이에요! ' : '아쉬워요. 정답은 "' + item.answer + '" 입니다. ') + item.explain;
+  document.getElementById('era-next').disabled = false;
+}
+function nextEra(){
+  eraIndex++;
+  if(eraIndex >= eraQuestions.length){
+    goTo(3);
+  } else {
+    showEraQuestion();
+  }
+}
+
+/* ---------------- research (localStorage) ---------------- */
+const STORAGE_KEY = 'withtech_construction_research';
+
+function loadResearch(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }catch(e){ return []; }
+}
+function saveResearch(list){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }catch(e){}
+}
+function addResearch(){
+  const era = document.getElementById('r-era').value.trim();
+  const img = document.getElementById('r-img').value.trim();
+  const text = document.getElementById('r-text').value.trim();
+  if(!era || !text){
+    alert('시대/유형과 조사한 내용은 꼭 입력해주세요.');
+    return;
+  }
+  const list = loadResearch();
+  list.unshift({era, img, text, ts: Date.now()});
+  saveResearch(list);
+  document.getElementById('r-era').value = '';
+  document.getElementById('r-img').value = '';
+  document.getElementById('r-text').value = '';
+  renderGallery();
+}
+function deleteResearch(ts){
+  const list = loadResearch().filter(x => x.ts !== ts);
+  saveResearch(list);
+  renderGallery();
+}
+function renderGallery(){
+  const list = loadResearch();
+  const gallery = document.getElementById('r-gallery');
+  const empty = document.getElementById('r-empty');
+  gallery.innerHTML = '';
+  if(list.length === 0){
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  list.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'gcard';
+    const imgTag = item.img
+      ? '<img src="' + item.img.replace(/"/g,'&quot;') + '" alt="" onerror="this.style.display=\\'none\\'">'
+      : '';
+    card.innerHTML =
+      imgTag +
+      '<div class="gbody">' +
+        '<div class="gera">' + escapeHtml(item.era) + '</div>' +
+        '<div class="gtext">' + escapeHtml(item.text) + '</div>' +
+      '</div>' +
+      '<button class="gdel">삭제</button>';
+    card.querySelector('.gdel').onclick = () => deleteResearch(item.ts);
+    gallery.appendChild(card);
+  });
+}
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+/* ---------------- finish ---------------- */
+function renderFinish(){
+  const total = classifyItems.length + eraQuestions.length;
+  const score = clCorrect + eraCorrect;
+  document.getElementById('final-score').textContent = score + ' / ' + total;
+  const rcount = loadResearch().length;
+  document.getElementById('final-research').textContent = '조사 기록 ' + rcount + '건을 작성했어요.';
+}
+function restart(){
+  goTo(0);
+}
+</script>
+</body>
+</html>

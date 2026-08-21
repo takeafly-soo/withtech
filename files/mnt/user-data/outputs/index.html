@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WithTech</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e293b, #334155);
+    font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+    color: white;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  h1 {
+    font-size: 2.2em;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    opacity: 0.7;
+    margin-bottom: 40px;
+    font-size: 1em;
+  }
+  .cards {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .card {
+    text-decoration: none;
+    color: white;
+    width: 260px;
+    padding: 36px 24px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(6px);
+    transition: transform 0.2s, background 0.2s;
+  }
+  .card:hover {
+    transform: translateY(-6px);
+    background: rgba(255,255,255,0.15);
+  }
+  .icon {
+    font-size: 2.4em;
+    margin-bottom: 12px;
+  }
+  .card h2 {
+    margin: 0 0 6px;
+    font-size: 1.3em;
+  }
+  .card p {
+    margin: 0;
+    font-size: 0.9em;
+    opacity: 0.75;
+  }
+  footer {
+    margin-top: 50px;
+    font-size: 0.8em;
+    opacity: 0.4;
+  }
+</style>
+</head>
+<body>
+  <h1>🔧 WithTech</h1>
+  <div class="subtitle">과목을 선택하세요</div>
+
+  <div class="cards">
+    <a class="card" href="tech/index.html">
+      <div class="icon">⚙️</div>
+      <h2>2026.2학기 기술</h2>
+      <p>차시별 정리 게임 바로가기</p>
+    </a>
+
+    <a class="card" href="home/index.html">
+      <div class="icon">🏠</div>
+      <h2>2026.2학기 가정</h2>
+      <p>차시별 정리 게임 바로가기</p>
+    </a>
+  </div>
+
+  <footer>withtech-kohl.vercel.app</footer>
+</body>
+</html>

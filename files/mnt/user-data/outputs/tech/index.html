@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026.2학기 기술 | WithTech</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body {
+    margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; padding: 50px 20px;
+    background:
+      linear-gradient(#0d2b45, #0d2b45),
+      repeating-linear-gradient(0deg, rgba(95,168,211,0.2) 0px, rgba(95,168,211,0.2) 1px, transparent 1px, transparent 40px),
+      repeating-linear-gradient(90deg, rgba(95,168,211,0.2) 0px, rgba(95,168,211,0.2) 1px, transparent 1px, transparent 40px);
+    font-family: 'Noto Sans KR', sans-serif; color: #eef3f6;
+  }
+  .kicker{ font-size:0.75em; letter-spacing:0.18em; color:#f2a71b; margin-bottom:6px; }
+  h1 { font-size: 1.8em; margin: 0 0 6px; }
+  .sub { opacity: 0.7; margin-bottom: 34px; font-size:0.95em; }
+  .list{ width:100%; max-width:520px; display:flex; flex-direction:column; gap:14px; }
+  a.lesson{
+    text-decoration:none; color:#eef3f6;
+    display:flex; align-items:center; gap:16px;
+    background: rgba(255,255,255,0.06);
+    border:1px solid #3f6f95;
+    border-radius:4px;
+    padding:18px 20px;
+    transition: background 0.15s, transform 0.15s;
+  }
+  a.lesson:hover{ background: rgba(255,255,255,0.12); transform: translateX(4px); }
+  .num{ font-family:'Space Mono',monospace; font-weight:700; color:#f2a71b; font-size:1.1em; min-width:34px; }
+  .ltitle{ font-weight:700; font-size:1.02em; }
+  .ldesc{ font-size:0.82em; opacity:0.7; margin-top:2px; }
+  .back { margin-top: 40px; color: #f2a71b; text-decoration: none; font-size: 0.85em; font-family:'Space Mono',monospace;}
+</style>
+</head>
+<body>
+  <div class="kicker">2026.2학기</div>
+  <h1>⚙️ 기술</h1>
+  <div class="sub">차시를 선택하면 정리 게임으로 이동합니다</div>
+
+  <div class="list">
+    <a class="lesson" href="lesson1/index.html">
+      <div class="num">01</div>
+      <div>
+        <div class="ltitle">건설기술의 이해</div>
+        <div class="ldesc">건축기술 vs 토목기술 구분 · 시대별 주거공간 변화 · 조사활동</div>
+      </div>
+    </a>
+  </div>
+
+  <a class="back" href="../index.html">← 과목 선택으로</a>
+</body>
+</html>
